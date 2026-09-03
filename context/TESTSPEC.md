@@ -64,13 +64,14 @@ pnpm dev                        # E. manual QA — see §4.6
   no leading `/`); parses and sorts by `level_id`; throws a friendly error on a
   404, a network failure, malformed data, or an empty list. `AUTO-EXISTS`.
   Trace: DEVSPEC 1.8.
-- **TC-DRG-01..22** `dragUtils`: rect collision (overlap/no-overlap); slot lookup by
+- **TC-DRG-01..23** `dragUtils`: rect collision (overlap/no-overlap); slot lookup by
   point (hit/miss); nearest-slot lookup (hit/empty-list); seeded RNG is
   deterministic per seed and differs across seeds; `generateRandomPositions`
   returns the requested count, is deterministic per level index, and never
   overlaps the answer-area rect or other generated tiles (12 cases); plus
   `alignPositionsToSlots` — one position per slot, each centered within its
-  slot's bounds (2 cases); `resolveOverlaps` — leaves a clear position untouched, pushes an
+  slot's bounds (2 cases); `centerOfTile` — returns the center of a
+  tile-sized box at a given position (1 case); `resolveOverlaps` — leaves a clear position untouched, pushes an
   overlapping one clear (including the pathological case of two obstacles
   exactly level with each other), clamps to bounds (4 cases); `bounceAwayFromSlot`
   — moves further from the slot center, clamps to bounds, picks a default
@@ -117,7 +118,7 @@ pnpm dev                        # E. manual QA — see §4.6
   invalid drop applies the error class; empty slots are labeled for screen
   readers; measured slot rects are reported to the parent on mount.
   `AUTO-EXISTS`. Trace: DEVSPEC 1.4, UISPEC §3.2.
-- **TC-TILE-01..16** `LetterTiles`: renders one tile per letter; a locked tile is
+- **TC-TILE-01..17** `LetterTiles`: renders one tile per letter; a locked tile is
   disabled and styled locked, and centers on its answer slot rather than the
   slot's raw top-left corner, while unlocked siblings stay enabled (5 cases);
   **combined/reveal:** starts assembled with a tap-hint class and a
@@ -129,7 +130,9 @@ pnpm dev                        # E. manual QA — see §4.6
   the tile's visual center, the same sequence on a locked tile does nothing, a plain
   click (no movement) leaves the tile exactly where it was, a drop
   that only comes near another tile (not truly overlapping it) lands exactly
-  where released, dropping one tile onto another resolves clear of it (5
+  where released, dropping one tile onto another resolves clear of it, and
+  reports the *resolved* (post-push) center rather than the raw drop point
+  when overlap resolution moves the tile (6
   cases); **bounce:** the
   `bounceTileId`/`bounceSlot` props apply the bounce class and move that tile
   only, not other tiles (2 cases). `AUTO-EXISTS`. Trace: DEVSPEC 1.3, UISPEC §3.3.
@@ -213,7 +216,7 @@ sizes) rather than by a script — none are truly `AUTO-EXISTS` yet.
 A build is releasable when:
 
 - **G1** `pnpm typecheck` passes.
-- **G2** `pnpm test` passes (currently 107/107).
+- **G2** `pnpm test` passes (currently 112/112).
 - **G3** `pnpm build && pnpm build:bundle` succeeds; a manual check of both
   ZIPs (TC-PKG-01..03) confirms structure and size limits.
 - **G4** Manual playthrough (TC-DEV-01) shows no console errors and no failed
@@ -226,7 +229,7 @@ A build is releasable when:
 | DEVSPEC / UISPEC area | Test cases |
 |---|---|
 | 1.2 GameBoard | TC-BOARD-01..05, TC-PLAY-01..05 |
-| 1.3 LetterTiles (incl. reveal, overlap, bounce) | TC-TILE-01..16, TC-DRAG-01..07, TC-DRG-01..21 |
+| 1.3 LetterTiles (incl. reveal, overlap, bounce) | TC-TILE-01..17, TC-DRAG-01..07, TC-DRG-01..23 |
 | 1.4 AnswerArea | TC-ANS-01..06, TC-DRG-01..12 (slot lookup) |
 | 1.5 Validation Engine | TC-LOGIC-01..08, TC-PLAY-01..02, TC-PLAY-05 |
 | 1.6 Audio Manager | TC-AUD-01..06, TC-UAUD-01..03, TC-PLAY-01 (reveal audio) |
@@ -242,7 +245,7 @@ A build is releasable when:
 
 ## 7. Current reality vs. target
 
-- **Exists today:** the full unit + integration suite (110 tests, all
+- **Exists today:** the full unit + integration suite (112 tests, all
   `AUTO-EXISTS` cases above) and `pnpm typecheck`, both enforceable on every
   change. `build:bundle` works but asserts nothing about its own output.
 - **Not built:** automated accessibility (axe-core) and performance (FPS/
@@ -288,3 +291,14 @@ A build is releasable when:
   (TC-DRG-22). 108 → 109 tests.
 - 2026-09-03: Moved replay sound into GameControls and added its conditional
   visibility/callback case (TC-CTRL-04). 109 → 110 tests.
+- 2026-09-03: Code review fixes: `onTileDrop` now reports the center of the
+  overlap-*resolved* position instead of the raw (pre-resolution) drop point,
+  so a drop that gets pushed clear of a neighboring tile is validated against
+  the slot it actually renders near, not the one under the original release
+  point (TC-TILE gains a regression case, 16 → 17); `centerOfTile` was
+  extracted into `dragUtils.ts` as a shared export (it was being computed
+  inline in three places) and gained its own case (TC-DRG 22 → 23); fixed the
+  G2 release-gate line and CLAUDE.md's mirrored count, both of which had been
+  left at 107 despite the suite already being at 110; also fixed the
+  coverage-matrix row, which still said `TC-DRG-01..21` after the previous
+  round bumped the real range to `01..22`. 110 → 112 tests.

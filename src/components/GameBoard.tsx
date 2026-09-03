@@ -4,7 +4,7 @@ import type { Vec2 } from '../types/game'
 import { loadWords, WordListLoadError } from '../utils/wordListLoader'
 import { findSlotAtPosition, type Rect, type Slot } from '../utils/dragUtils'
 import { buildEvent, reportEvent } from '../utils/crEventReporter'
-import { useGameLogic } from '../hooks/useGameLogic'
+import { POINTS_PER_WORD, useGameLogic } from '../hooks/useGameLogic'
 import { useAudio } from '../hooks/useAudio'
 import { GameControls } from './GameControls'
 import { AnswerArea } from './AnswerArea'
@@ -156,7 +156,7 @@ function GamePlaySession({ words, langCode, userId, onRestart }: GamePlaySession
     setPlantedWords((prev) => [...prev, currentWord.level_id])
     announce(
       `You spelled ${currentWord.target_word}! Word ${state.currentLevelIndex + 1} of ${words.length}. ` +
-        `Score: ${state.score + 1} correct out of ${words.length} words.`,
+        `Score: ${state.score + POINTS_PER_WORD} correct out of ${words.length} words.`,
     )
     reportEvent(
       buildEvent('word_completed', state.sessionId, userId, {

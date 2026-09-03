@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid'
 import type { DropValidationResult, GameState, Tile } from '../types/game'
 import type { Word } from '../types/word'
 
+/** Points awarded for completing a word. MVP has no partial credit or foils. */
+export const POINTS_PER_WORD = 1
+
 function buildTiles(word: Word): Tile[] {
   return word.letters.map((letter, index) => ({
     id: `tile-${letter}-${index}`,
@@ -73,7 +76,7 @@ export function useGameLogic(words: Word[]): UseGameLogicResult {
     setState((prev) => {
       const completedWord = prev.currentWord !== null
       const nextIndex = prev.currentLevelIndex + 1
-      const newScore = completedWord ? prev.score + 1 : prev.score
+      const newScore = completedWord ? prev.score + POINTS_PER_WORD : prev.score
       if (nextIndex >= words.length) {
         return { ...prev, status: 'won', score: newScore }
       }

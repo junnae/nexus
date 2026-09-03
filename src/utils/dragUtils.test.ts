@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   alignPositionsToSlots,
   bounceAwayFromSlot,
+  centerOfTile,
   createSeededRandom,
   findClosestSlot,
   findSlotAtPosition,
@@ -117,6 +118,12 @@ describe('dragUtils', () => {
       const positions = alignPositionsToSlots(slots, 60)
       expect(positions[0]).toEqual({ x: 100 + (70 - 60) / 2, y: 200 + (70 - 60) / 2 })
       expect(positions[1]).toEqual({ x: 200 + (70 - 60) / 2, y: 200 + (70 - 60) / 2 })
+    })
+  })
+
+  describe('centerOfTile', () => {
+    it('returns the center of a tile-sized box at the given position', () => {
+      expect(centerOfTile({ x: 100, y: 200 }, 60)).toEqual({ x: 130, y: 230 })
     })
   })
 

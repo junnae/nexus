@@ -3,6 +3,7 @@ import type { Tile, Vec2 } from '../types/game'
 import {
   alignPositionsToSlots,
   bounceAwayFromSlot,
+  centerOfTile,
   generateRandomPositions,
   resolveOverlaps,
   type Rect,
@@ -33,13 +34,6 @@ function readTileSize(): number {
   const value = getComputedStyle(document.documentElement).getPropertyValue('--tile-size')
   const parsed = parseFloat(value)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 60
-}
-
-function centerOfTile(position: Vec2, tileSize: number): Vec2 {
-  return {
-    x: position.x + tileSize / 2,
-    y: position.y + tileSize / 2,
-  }
 }
 
 export function LetterTiles({
@@ -93,7 +87,11 @@ export function LetterTiles({
     // tile snap away unexpectedly, which read as random/unwanted bouncing.
     const resolved = resolveOverlaps(dropPosition, tileSize, others, viewportBounds, 0)
     setPositionFor(tileId, resolved)
-    onTileDrop(tileId, centerOfTile(dropPosition, tileSize))
+    // Report the center of where the tile actually ends up (post-overlap-
+    // resolution), not the raw drop point — otherwise a drop that gets
+    // pushed clear of a neighboring tile is validated against a slot the
+    // tile doesn't actually render near.
+    onTileDrop(tileId, centerOfTile(resolved, tileSize))
   }
 
   const { positions, draggingId, setInitialPositions, startDrag, moveDrag, endDrag } = useDragState({

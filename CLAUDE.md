@@ -23,7 +23,7 @@ a stated assumption, add it to DEVSPEC's **Lessons Log**.
   are generated placeholders (see `scripts/generate-placeholder-assets.ts`), not real art/audio.
   Real MP3 recordings need a code+data change (just update paths in `words.json`); see README.
 - **Test scope:** only the automatable core of TESTSPEC is implemented (unit + integration,
-  107 tests). Automated a11y/perf scans, the device matrix, and bundle-verification scripts are
+  112 tests). Automated a11y/perf scans, the device matrix, and bundle-verification scripts are
   intentionally not built — see TESTSPEC's Notes.
 - **Curious Reader upload** (packaging beyond `pnpm build:bundle`) needs MCP credentials this
   repo doesn't have — that step is manual/external.
