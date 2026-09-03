@@ -64,7 +64,7 @@ pnpm dev                        # E. manual QA — see §4.6
   no leading `/`); parses and sorts by `level_id`; throws a friendly error on a
   404, a network failure, malformed data, or an empty list. `AUTO-EXISTS`.
   Trace: DEVSPEC 1.8.
-- **TC-DRG-01..21** `dragUtils`: rect collision (overlap/no-overlap); slot lookup by
+- **TC-DRG-01..22** `dragUtils`: rect collision (overlap/no-overlap); slot lookup by
   point (hit/miss); nearest-slot lookup (hit/empty-list); seeded RNG is
   deterministic per seed and differs across seeds; `generateRandomPositions`
   returns the requested count, is deterministic per level index, and never
@@ -74,7 +74,8 @@ pnpm dev                        # E. manual QA — see §4.6
   overlapping one clear (including the pathological case of two obstacles
   exactly level with each other), clamps to bounds (4 cases); `bounceAwayFromSlot`
   — moves further from the slot center, clamps to bounds, picks a default
-  direction when dropped exactly on the slot center (3 cases). `AUTO-EXISTS`.
+  direction when dropped exactly on the slot center, and chooses a clear side
+  when viewport clamping blocks that direction (4 cases). `AUTO-EXISTS`.
   Trace: DEVSPEC 1.3, 1.4.
 - **TC-AUD-01..06** `audioManager`: loads a file from a relative path; handles a
   missing/failing file without throwing; preloads multiple files concurrently;
@@ -125,15 +126,16 @@ pnpm dev                        # E. manual QA — see §4.6
   starting a drag, tapping reveals (loses the assembled class, group label
   becomes "Letter tiles: ...") (4 cases); **after reveal:** a full
   pointerdown→move→up sequence follows the pointer and emits `onTileDrop` with
-  the drop position, the same sequence on a locked tile does nothing, a plain
+  the tile's visual center, the same sequence on a locked tile does nothing, a plain
   click (no movement) leaves the tile exactly where it was, a drop
   that only comes near another tile (not truly overlapping it) lands exactly
   where released, dropping one tile onto another resolves clear of it (5
   cases); **bounce:** the
   `bounceTileId`/`bounceSlot` props apply the bounce class and move that tile
   only, not other tiles (2 cases). `AUTO-EXISTS`. Trace: DEVSPEC 1.3, UISPEC §3.3.
-- **TC-CTRL-01..03** `GameControls`: displays `Score: x/y` and `Word n of total`;
-  Help and Settings buttons fire their callbacks. `AUTO-EXISTS`. Trace: UISPEC
+- **TC-CTRL-01..04** `GameControls`: displays `Score: x/y` and `Word n of total`;
+  Help and Settings buttons fire their callbacks; replay appears only when its
+  callback is available and fires it. `AUTO-EXISTS`. Trace: UISPEC
   §3.1.
 - **TC-HELP-01..02** `HelpModal`: renders the how-to-play copy; both close
   affordances call `onClose`. `AUTO-EXISTS`. Trace: UISPEC §5.3.
@@ -150,12 +152,13 @@ pnpm dev                        # E. manual QA — see §4.6
 
 ### 4.4 Integration (`tests/integration/`)
 
-- **TC-PLAY-01..04** Gameplay flow: starts combined with no image/text solution
-  shown, tapping reveals it (group label + class change, replay-sound button
-  appears); a full two-word session reaches the game-end screen with the
+- **TC-PLAY-01..05** Gameplay flow: starts combined with no image/text solution
+  shown, tapping reveals it (group label + class change, header replay-sound
+  button appears); a full two-word session reaches the game-end screen with the
   correct final score; an earlier incorrect placement doesn't block completing
   the word; `session_start`/`word_started`/`placement_correct`/`word_completed`
-  all fire via `cr_event` in the right order. `AUTO-EXISTS`. Trace: DEVSPEC
+  all fire via `cr_event` in the right order; incorrect placement and word
+  completion/score feedback are announced through a live region. `AUTO-EXISTS`. Trace: DEVSPEC
   1.2, 1.3, 1.5, 1.7; UISPEC §3.3, §4, §9 (Tap to Reveal, Core Gameplay).
 - **TC-OFFI-01..05** Offline compliance: every `fetch` call is a relative path
   (no leading `/`, no `http(s)://`, no CDN); the revealed word's audio path is
@@ -171,8 +174,9 @@ pnpm dev                        # E. manual QA — see §4.6
   `AUTO-TARGET`. Trace: DEVSPEC 2.2, UISPEC §6.
 - **TC-A11Y-02** All interactive elements measure ≥44×44px. `AUTO-TARGET`.
   Trace: DEVSPEC 2.2.
-- **TC-A11Y-03** Screen-reader announcements on word completion and score
-  change. `MANUAL` (NVDA/VoiceOver). Trace: UISPEC §6.
+- **TC-A11Y-03** The live-region content for word completion, score change, and
+  incorrect placement is automated by TC-PLAY-05; actual announcement behavior
+  remains `MANUAL` (NVDA/VoiceOver). Trace: UISPEC §6.
 - **TC-PERF-01** First word visible within 2s of load. `AUTO-TARGET`. Trace:
   DEVSPEC 2.1.
 - **TC-PERF-02** Drag maintains ≥55fps average, no dropped frames. `MANUAL`
@@ -221,15 +225,15 @@ A build is releasable when:
 
 | DEVSPEC / UISPEC area | Test cases |
 |---|---|
-| 1.2 GameBoard | TC-BOARD-01..05, TC-PLAY-01..04 |
+| 1.2 GameBoard | TC-BOARD-01..05, TC-PLAY-01..05 |
 | 1.3 LetterTiles (incl. reveal, overlap, bounce) | TC-TILE-01..16, TC-DRAG-01..07, TC-DRG-01..21 |
 | 1.4 AnswerArea | TC-ANS-01..06, TC-DRG-01..12 (slot lookup) |
-| 1.5 Validation Engine | TC-LOGIC-01..08, TC-PLAY-01..02 |
+| 1.5 Validation Engine | TC-LOGIC-01..08, TC-PLAY-01..02, TC-PLAY-05 |
 | 1.6 Audio Manager | TC-AUD-01..06, TC-UAUD-01..03, TC-PLAY-01 (reveal audio) |
 | 1.7 Event Reporting | TC-EVT-01..05, TC-PLAY-04 |
 | 1.8 Language Loader | TC-WLL-01..06, TC-BOARD-01 |
 | 2.5 Offline compliance | TC-OFF-01..06, TC-OFFI-01..05, TC-DEV-02 |
-| 2.2 Accessibility | TC-A11Y-01..03, TC-ANS-05 |
+| 2.2 Accessibility | TC-A11Y-01..03, TC-ANS-05, TC-PLAY-05 |
 | 2.1 Performance | TC-PERF-01..03 |
 | 3.3 Packaging | TC-PKG-01..04 (currently manual) |
 | UISPEC §3.1 Header/Controls | TC-CTRL-01..03 |
@@ -238,7 +242,7 @@ A build is releasable when:
 
 ## 7. Current reality vs. target
 
-- **Exists today:** the full unit + integration suite (107 tests, all
+- **Exists today:** the full unit + integration suite (110 tests, all
   `AUTO-EXISTS` cases above) and `pnpm typecheck`, both enforceable on every
   change. `build:bundle` works but asserts nothing about its own output.
 - **Not built:** automated accessibility (axe-core) and performance (FPS/
@@ -274,3 +278,13 @@ A build is releasable when:
   rendered at its slot's raw top-left corner instead of centered — visibly
   misaligned, since slots are larger than tiles. Added a centering regression
   case to TC-TILE (15 → 16). 106 → 107 tests, all still `AUTO-EXISTS`.
+- 2026-09-03: Added automated live-region content coverage for incorrect
+  placement and word completion/score feedback (TC-PLAY-05). Portrait remains
+  playable rather than being blocked by a rotation overlay. 107 → 108 tests.
+- 2026-09-03: Corrected the LetterTiles drop contract and gameplay helper to
+  target slots using the tile's visual center rather than its top-left corner;
+  existing component and integration cases now regress the missed-drop bug.
+- 2026-09-03: Added the viewport-edge bounce regression case
+  (TC-DRG-22). 108 → 109 tests.
+- 2026-09-03: Moved replay sound into GameControls and added its conditional
+  visibility/callback case (TC-CTRL-04). 109 → 110 tests.

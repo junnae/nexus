@@ -146,8 +146,8 @@ export function resolveOverlaps(
 
 /**
  * Pushes a dropped position away from a slot's center by `distance`, along
- * the slot-to-drop vector, clamped to `bounds`. Used for the "bounce away"
- * feedback on an incorrect drop.
+ * the slot-to-drop vector. If viewport clamping leaves the tile overlapping
+ * the slot, it selects the nearest clear side instead.
  */
 export function bounceAwayFromSlot(
   dropPosition: Vec2,
@@ -174,7 +174,31 @@ export function bounceAwayFromSlot(
     x: dropPosition.x + (dx / dist) * distance,
     y: dropPosition.y + (dy / dist) * distance,
   }
-  return clampToBounds(pushed, tileSize, bounds)
+  const clamped = clampToBounds(pushed, tileSize, bounds)
+  const tileRect = { ...clamped, width: tileSize, height: tileSize }
+  const gap = 8
+  if (!isCollision(tileRect, slotRect, gap)) return clamped
+
+  const clearSideCandidates = [
+    { x: slotRect.x - tileSize - gap, y: clamped.y },
+    { x: slotRect.x + slotRect.width + gap, y: clamped.y },
+    { x: clamped.x, y: slotRect.y - tileSize - gap },
+    { x: clamped.x, y: slotRect.y + slotRect.height + gap },
+  ]
+    .map((candidate) => clampToBounds(candidate, tileSize, bounds))
+    .filter(
+      (candidate) =>
+        !isCollision({ ...candidate, width: tileSize, height: tileSize }, slotRect, gap),
+    )
+
+  return (
+    clearSideCandidates.sort(
+      (a, b) =>
+        (a.x - clamped.x) ** 2 +
+        (a.y - clamped.y) ** 2 -
+        ((b.x - clamped.x) ** 2 + (b.y - clamped.y) ** 2),
+    )[0] ?? clamped
+  )
 }
 
 /**

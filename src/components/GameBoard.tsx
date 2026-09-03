@@ -21,32 +21,6 @@ const LOADING_TIMEOUT_MS = 5000
 const CELEBRATION_DURATION_MS = 1500
 const ERROR_FLASH_MS = 500
 
-function SpeakerIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M4 9v6h4l5 4V5L8 9H4z"
-        fill="currentColor"
-      />
-      <path
-        d="M16.5 8.5a5 5 0 0 1 0 7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M19 6a9 9 0 0 1 0 12"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.6"
-      />
-    </svg>
-  )
-}
-
 function readUrlParams(): { langCode: string; userId: string } {
   const params = new URLSearchParams(window.location.search)
   return {
@@ -90,13 +64,18 @@ export function GameBoard() {
 
   const restart = () => setAttempt((a) => a + 1)
 
+  let content
   if (loadError) {
-    return <ErrorScreen message={loadError} onRetry={restart} onHome={restart} />
+    content = <ErrorScreen message={loadError} onRetry={restart} onHome={restart} />
+  } else if (!words) {
+    content = <LoadingScreen />
+  } else {
+    content = (
+      <GamePlaySession key={attempt} words={words} langCode={langCode} userId={userId} onRestart={restart} />
+    )
   }
-  if (!words) {
-    return <LoadingScreen />
-  }
-  return <GamePlaySession key={attempt} words={words} langCode={langCode} userId={userId} onRestart={restart} />
+
+  return content
 }
 
 interface GamePlaySessionProps {
@@ -122,12 +101,18 @@ function GamePlaySession({ words, langCode, userId, onRestart }: GamePlaySession
   const [helpOpen, setHelpOpen] = useState(false)
   const [plantedWords, setPlantedWords] = useState<number[]>([])
   const [revealed, setRevealed] = useState(false)
+  const [announcement, setAnnouncement] = useState({ id: 0, text: '' })
 
   const currentWord = state.currentWord
+
+  function announce(text: string) {
+    setAnnouncement((previous) => ({ id: previous.id + 1, text }))
+  }
 
   // Each new word starts unrevealed (combined, not yet tapped/heard).
   useEffect(() => {
     setRevealed(false)
+    setAnnouncement((previous) => ({ id: previous.id + 1, text: '' }))
   }, [currentWord?.level_id])
 
   // session_start / session_end bracket the whole play session
@@ -169,6 +154,10 @@ function GamePlaySession({ words, langCode, userId, onRestart }: GamePlaySession
 
     setCelebrating(true)
     setPlantedWords((prev) => [...prev, currentWord.level_id])
+    announce(
+      `You spelled ${currentWord.target_word}! Word ${state.currentLevelIndex + 1} of ${words.length}. ` +
+        `Score: ${state.score + 1} correct out of ${words.length} words.`,
+    )
     reportEvent(
       buildEvent('word_completed', state.sessionId, userId, {
         wordId: currentWord.level_id,
@@ -233,6 +222,7 @@ function GamePlaySession({ words, langCode, userId, onRestart }: GamePlaySession
       const letterAudio = tile ? currentWord.audio_letters[tile.letter] : undefined
       void audio.playSequence([`lang/${langCode}/audios/feedback/correct.wav`, ...(letterAudio ? [letterAudio] : [])])
     } else {
+      announce("That's not right. Try again.")
       reportEvent(
         buildEvent('placement_incorrect', state.sessionId, userId, {
           wordId: currentWord.level_id,
@@ -276,24 +266,18 @@ function GamePlaySession({ words, langCode, userId, onRestart }: GamePlaySession
         score={state.score}
         totalWords={words.length}
         currentIndex={state.currentLevelIndex}
+        onReplay={revealed ? () => void playWordAloud() : undefined}
+        replayLabel={currentWord ? `Play the word ${currentWord.target_word} again` : undefined}
         onHelp={() => setHelpOpen(true)}
         onSettings={() => {
           /* stubbed for MVP, per UISPEC */
         }}
       />
+      <div className="sr-only" role="status" aria-label="Game updates" aria-live="polite" aria-atomic="true">
+        <span key={announcement.id}>{announcement.text}</span>
+      </div>
       <div className="play-area" ref={setPlayAreaEl}>
         <GardenBackdrop />
-        {revealed && currentWord && answerRect && (
-          <button
-            type="button"
-            className="replay-sound-button"
-            style={{ top: answerRect.y + answerRect.height + 12 }}
-            onClick={() => void playWordAloud()}
-            aria-label={`Play the word ${currentWord.target_word} again`}
-          >
-            <SpeakerIcon />
-          </button>
-        )}
         {currentWord && (
           <AnswerArea
             word={currentWord}

@@ -13,7 +13,7 @@ export interface UseDragStateResult {
   draggingId: string | null
   setInitialPositions: (positions: Map<string, Vec2>) => void
   startDrag: (tileId: string, pointer: Vec2) => void
-  moveDrag: (pointer: Vec2) => void
+  moveDrag: (pointer: Vec2) => Vec2 | null
   endDrag: (pointer: Vec2) => void
 }
 
@@ -43,7 +43,7 @@ export function useDragState({ isLocked, onTileDrop, viewportBounds, tileSize }:
 
   const moveDrag = useCallback(
     (pointer: Vec2) => {
-      if (!draggingId) return
+      if (!draggingId) return null
       const rawX = pointer.x - dragOffset.current.x
       const rawY = pointer.y - dragOffset.current.y
       const clamped: Vec2 = {
@@ -51,6 +51,7 @@ export function useDragState({ isLocked, onTileDrop, viewportBounds, tileSize }:
         y: clamp(rawY, 0, Math.max(0, viewportBounds.height - tileSize)),
       }
       setPositions((prev) => new Map(prev).set(draggingId, clamped))
+      return clamped
     },
     [draggingId, viewportBounds, tileSize],
   )

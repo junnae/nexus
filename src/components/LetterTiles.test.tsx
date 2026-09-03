@@ -145,7 +145,7 @@ describe('LetterTiles', () => {
   })
 
   describe('after reveal', () => {
-    it('follows the pointer while dragging and emits onTileDrop on release', () => {
+    it('follows the pointer while dragging and emits the tile center on release', () => {
       const onTileDrop = vi.fn()
       render(<Harness onTileDrop={onTileDrop} />)
       reveal()
@@ -161,7 +161,7 @@ describe('LetterTiles', () => {
       expect(onTileDrop).toHaveBeenCalledTimes(1)
       const [droppedId, position] = onTileDrop.mock.calls[0]
       expect(droppedId).toBe('tile-c-0')
-      expect(position).toEqual({ x: 550, y: 520 })
+      expect(position).toEqual({ x: 550 + TILE_SIZE / 2, y: 520 + TILE_SIZE / 2 })
     })
 
     it('a plain click (no movement) does not move the tile', () => {

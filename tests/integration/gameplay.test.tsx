@@ -146,4 +146,26 @@ describe('Gameplay Integration', () => {
 
     delete (window as unknown as { cr_event?: unknown }).cr_event
   })
+
+  it('announces an incorrect placement and word completion to screen readers', async () => {
+    const words = [makeWords()[0]]
+    installFetchAndAudioMocks(words)
+
+    render(<GameBoard />)
+    await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument())
+
+    revealWord()
+    dropLetter('c', 1)
+    expect(screen.getByRole('status', { name: 'Game updates' })).toHaveTextContent("That's not right. Try again.")
+
+    dropLetter('c', 0)
+    dropLetter('a', 1)
+    dropLetter('t', 2)
+
+    await waitFor(() =>
+      expect(screen.getByRole('status', { name: 'Game updates' })).toHaveTextContent(
+        'You spelled cat! Word 1 of 1. Score: 1 correct out of 1 words.',
+      ),
+    )
+  })
 })

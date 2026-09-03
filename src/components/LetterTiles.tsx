@@ -35,6 +35,13 @@ function readTileSize(): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 60
 }
 
+function centerOfTile(position: Vec2, tileSize: number): Vec2 {
+  return {
+    x: position.x + tileSize / 2,
+    y: position.y + tileSize / 2,
+  }
+}
+
 export function LetterTiles({
   tiles,
   lockedTiles,
@@ -86,7 +93,7 @@ export function LetterTiles({
     // tile snap away unexpectedly, which read as random/unwanted bouncing.
     const resolved = resolveOverlaps(dropPosition, tileSize, others, viewportBounds, 0)
     setPositionFor(tileId, resolved)
-    onTileDrop(tileId, dropPosition)
+    onTileDrop(tileId, centerOfTile(dropPosition, tileSize))
   }
 
   const { positions, draggingId, setInitialPositions, startDrag, moveDrag, endDrag } = useDragState({
@@ -210,8 +217,8 @@ export function LetterTiles({
             onPointerMove={(e) => {
               if (draggingId !== tile.id) return
               const point = toRelativePoint(e)
-              moveDrag(point)
-              onDragMove?.(point)
+              const tilePosition = moveDrag(point)
+              onDragMove?.(tilePosition ? centerOfTile(tilePosition, tileSize) : null)
             }}
             onPointerUp={(e) => {
               if (draggingId !== tile.id) return

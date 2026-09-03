@@ -183,5 +183,17 @@ describe('dragUtils', () => {
       const bounced = bounceAwayFromSlot(centerDrop, tileSize, slot, bounds)
       expect(bounced).not.toEqual(centerDrop)
     })
+
+    it('chooses a clear side when the preferred bounce is blocked by the viewport edge', () => {
+      const topSlot = { x: 269, y: 20, width: 70, height: 70 }
+      const centerDrop = {
+        x: topSlot.x + topSlot.width / 2 - tileSize / 2,
+        y: topSlot.y + topSlot.height / 2 - tileSize / 2,
+      }
+
+      const bounced = bounceAwayFromSlot(centerDrop, tileSize, topSlot, { width: 449, height: 889 })
+
+      expect(isCollision({ ...bounced, width: tileSize, height: tileSize }, topSlot)).toBe(false)
+    })
   })
 })
