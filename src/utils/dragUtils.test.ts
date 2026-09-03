@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   alignPositionsToSlots,
   bounceAwayFromSlot,
+  centerOfTile,
   createSeededRandom,
   findClosestSlot,
   findSlotAtPosition,
@@ -120,6 +121,12 @@ describe('dragUtils', () => {
     })
   })
 
+  describe('centerOfTile', () => {
+    it('returns the center of a tile-sized box at the given position', () => {
+      expect(centerOfTile({ x: 100, y: 200 }, 60)).toEqual({ x: 130, y: 230 })
+    })
+  })
+
   describe('resolveOverlaps', () => {
     const bounds = { width: 800, height: 600 }
     const tileSize = 60
@@ -182,6 +189,18 @@ describe('dragUtils', () => {
       const centerDrop = { x: slot.x + slot.width / 2 - tileSize / 2, y: slot.y + slot.height / 2 - tileSize / 2 }
       const bounced = bounceAwayFromSlot(centerDrop, tileSize, slot, bounds)
       expect(bounced).not.toEqual(centerDrop)
+    })
+
+    it('chooses a clear side when the preferred bounce is blocked by the viewport edge', () => {
+      const topSlot = { x: 269, y: 20, width: 70, height: 70 }
+      const centerDrop = {
+        x: topSlot.x + topSlot.width / 2 - tileSize / 2,
+        y: topSlot.y + topSlot.height / 2 - tileSize / 2,
+      }
+
+      const bounced = bounceAwayFromSlot(centerDrop, tileSize, topSlot, { width: 449, height: 889 })
+
+      expect(isCollision({ ...bounced, width: tileSize, height: tileSize }, topSlot)).toBe(false)
     })
   })
 })

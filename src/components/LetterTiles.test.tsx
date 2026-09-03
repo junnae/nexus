@@ -145,7 +145,7 @@ describe('LetterTiles', () => {
   })
 
   describe('after reveal', () => {
-    it('follows the pointer while dragging and emits onTileDrop on release', () => {
+    it('follows the pointer while dragging and emits the tile center on release', () => {
       const onTileDrop = vi.fn()
       render(<Harness onTileDrop={onTileDrop} />)
       reveal()
@@ -161,7 +161,7 @@ describe('LetterTiles', () => {
       expect(onTileDrop).toHaveBeenCalledTimes(1)
       const [droppedId, position] = onTileDrop.mock.calls[0]
       expect(droppedId).toBe('tile-c-0')
-      expect(position).toEqual({ x: 550, y: 520 })
+      expect(position).toEqual({ x: 550 + TILE_SIZE / 2, y: 520 + TILE_SIZE / 2 })
     })
 
     it('a plain click (no movement) does not move the tile', () => {
@@ -235,6 +235,30 @@ describe('LetterTiles', () => {
       const rectC: Rect = { x: finalC.x, y: finalC.y, width: TILE_SIZE, height: TILE_SIZE }
       const rectA: Rect = { x: finalA.x, y: finalA.y, width: TILE_SIZE, height: TILE_SIZE }
       expect(isCollision(rectC, rectA)).toBe(false)
+    })
+
+    it('reports the resolved (post-push) center, not the raw drop point, when overlap resolution moves the tile', () => {
+      // Regression: onTileDrop used to report centerOfTile(dropPosition, ...)
+      // — the raw, pre-resolution point — while the tile actually rendered
+      // at the overlap-resolved position. A slot-hit-test driven by the
+      // reported point could then disagree with where the tile visibly
+      // ended up.
+      const onTileDrop = vi.fn()
+      render(<Harness onTileDrop={onTileDrop} />)
+      reveal()
+
+      const startPos = tilePosition('tile-tile-c-0')
+      const targetPos = tilePosition('tile-tile-a-1')
+      const tile = screen.getByTestId('tile-tile-c-0')
+      fireEvent.pointerDown(tile, { clientX: startPos.x, clientY: startPos.y, pointerId: 1 })
+      fireEvent.pointerMove(tile, { clientX: targetPos.x, clientY: targetPos.y, pointerId: 1 })
+      fireEvent.pointerUp(tile, { clientX: targetPos.x, clientY: targetPos.y, pointerId: 1 })
+
+      const finalC = tilePosition('tile-tile-c-0')
+      expect(finalC).not.toEqual(targetPos) // sanity check: resolution actually moved it
+
+      const [, reportedCenter] = onTileDrop.mock.calls[0]
+      expect(reportedCenter).toEqual({ x: finalC.x + TILE_SIZE / 2, y: finalC.y + TILE_SIZE / 2 })
     })
   })
 

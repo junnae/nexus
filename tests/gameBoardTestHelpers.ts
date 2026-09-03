@@ -5,6 +5,7 @@ import type { Word } from '../src/types/word'
 const SLOT_Y = 400
 const SLOT_WIDTH = 70
 const SLOT_GAP = 100
+const TILE_SIZE = 60
 
 function rect(x: number, y: number, width: number, height: number): DOMRect {
   return {
@@ -91,11 +92,10 @@ export function revealWord() {
 
 export function dropLetter(letter: string, slotIndex: number) {
   const tile = screen.getByRole('button', { name: `Letter ${letter}` }) as HTMLElement
-  // Grab at the tile's own current position (not the slot) so the drag
-  // offset is zero — endDrag reports the offset-corrected position, so
-  // starting the "drag" anywhere else would land short of the slot.
-  const startX = parseFloat(tile.style.left)
-  const startY = parseFloat(tile.style.top)
+  // Grab the visual center and move that center to the target slot, matching
+  // how drop validation treats a tile in the real game.
+  const startX = parseFloat(tile.style.left) + TILE_SIZE / 2
+  const startY = parseFloat(tile.style.top) + TILE_SIZE / 2
   const { x, y } = slotCenter(slotIndex)
   fireEvent.pointerDown(tile, { clientX: startX, clientY: startY, pointerId: 1 })
   fireEvent.pointerMove(tile, { clientX: x, clientY: y, pointerId: 1 })

@@ -83,7 +83,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │  Header (48px height)                                           │
 │  ┌───────────────────────────────────────────────────────────┐ │
-│  │ Score: 12/20  |  Word 5 of 10  |  [Help]  [Settings]    │ │
+│  │ Score: 12/20 | Word 5 of 10 | [Sound] [Help] [Settings] │ │
 │  └───────────────────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────────────────────┤
 │  Main Play Area (remaining height) — no picture, no spelled-out │
@@ -95,11 +95,10 @@
 │  │        └─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘            │ │
 │  │                                                           │ │
 │  │  After tap — audio plays, letters scatter off the slots,  │ │
-│  │  a small replay-sound button appears just below them:     │ │
+│  │  a replay-sound button appears in the header:             │ │
 │  │        ┌─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐            │ │
 │  │        │      [ ] [ ] [ ]      (empty, awaiting drops)   │ │
 │  │        └─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘            │ │
-│  │                    (◉ replay sound)                       │ │
 │  │    [a]  [t]  [c]                                          │ │
 │  │      (draggable, scattered elsewhere in the play area)    │ │
 │  │                                                           │ │
@@ -111,6 +110,7 @@
 
 - **Score Display:** `"Score: {correctCount}/{totalWords}"`. Always visible; updates on word completion. Font size h2, color text-primary.
 - **Progress Indicator:** `"Word {currentIndex + 1} of {totalWords}"`. Always visible; updates on word change. Font size body, color text-secondary.
+- **Replay Button:** speaker icon, 40×40px. Appears beside Help after reveal and replays `audio_word_path`; hidden before reveal.
 - **Help Button:** `[?]` icon, 40×40px. Opens the Help modal (§5.3).
 - **Settings Button:** `[⚙]` icon, 40×40px. Stubbed for MVP (v1.1+).
 
@@ -152,7 +152,7 @@ Then the slot shakes, the letter bounces away, and the slot returns to empty
 
 **Combined state (before reveal):** each of the N tiles renders centered directly on its matching answer slot (one tile per slot, visually covering the empty slot beneath it) — this is the word's only presentation; there is no picture and nothing else spells it out. Tiles pulse gently (`tile-pulse`, ~1.6s loop, scale 1↔1.06) as a "tap me" affordance. Tapping **any** tile: plays `audio_word_path` aloud, then the tiles animate apart into their scattered positions (300ms ease-out, the same position transition used for the correct-drop snap) — the letters visibly "explode" outward off the slots rather than cutting to a new layout. Group `aria-label` while combined: `"Tap the word {word} to hear it and scatter the letters"`.
 
-**After reveal:** a small round replay-sound button appears just below the (now empty) answer slots — positioned from the measured answer-area rect, not a fixed offset, so it always clears the slots regardless of viewport size; absolutely positioned so its appearing/disappearing never shifts `AnswerArea`'s or `LetterTiles`' own layout (see DEVSPEC 2.6/4.4). Tapping it replays `audio_word_path`. Tiles become individually draggable:
+**After reveal:** a round replay-sound button appears in the header beside Help, keeping the answer row and play area clear. Tapping it replays `audio_word_path`. Tiles become individually draggable:
 
 | State | Visual | Interaction |
 |-------|--------|-------------|
@@ -176,7 +176,7 @@ Then all tiles are visible, scattered, non-overlapping, and clear of the answer 
 When I grab a tile
 Then it follows my pointer and stays within the screen bounds
 
-When I release a tile over an answer slot
+When I release a tile with its center over an answer slot
 Then drop validation runs and the tile either locks or bounces
 
 When I release a tile on top of another tile
@@ -283,6 +283,8 @@ Buttons ≥ 44×44px minimum; close button top-right `[X]` icon.
 
 **Color contrast:** WCAG AA minimum (4.5:1 normal text, 3:1 large); button states differentiated by color + text, not color alone; focus indicators are a 2px solid high-contrast border.
 
+**Reduced motion:** when the device requests reduced motion, animations and transitions complete immediately instead of pulsing, shaking, or scattering over time.
+
 **Breakpoints:** Mobile (<600px) is out of scope for MVP (landscape tablet focus); Tablet (600–1200px) is the base layout; Large (>1200px) scales tile size up.
 
 ```css
@@ -298,7 +300,7 @@ Buttons ≥ 44×44px minimum; close button top-right `[X]` icon.
 }
 ```
 
-**Orientation:** portrait shows a "Rotate your device" hint; landscape is the default full-screen play mode.
+**Orientation:** landscape is the preferred tablet layout, but portrait remains playable and must not be blocked by an orientation overlay.
 
 ## 7. Animation & micro-interactions
 
@@ -324,7 +326,7 @@ Buttons ≥ 44×44px minimum; close button top-right `[X]` icon.
 | AnswerArea | `status: 'playing'`, current word set |
 | LetterTiles — combined | `status: 'playing'`, word just loaded, not yet tapped |
 | LetterTiles — scattered | after the reveal tap; individual tiles lock once correctly placed |
-| Replay-sound button | after the reveal tap (never before — nothing to replay yet) |
+| Replay-sound button (header) | after the reveal tap (never before — nothing to replay yet) |
 | Celebration overlay ("✓ Great job!") | word just completed, during the 1.5s celebration window (§4.3) |
 | HelpModal | user has tapped Help, at any point during `'playing'` |
 | Game-end screen ("🎉 Game Over!") | `status: 'won'` |
@@ -409,3 +411,7 @@ Scenario: Assets load from relative paths
 - 2026-09-02: Numbered sections (§1-§9) and added a status-dependent visibility table (§8), harmonizing with word-smash's UISPEC structure. No behavioral content changed.
 - 2026-09-02: Removed §3.2 WordImage; the word is now presented via a combined, tap-to-reveal letter-tile row (§3.3) plus audio, not a picture. Added the reveal/scatter animation, the bounce-away visual, and the overlap-avoidance behavior. Updated the §9 Gherkin and §8 visibility table to match, and corrected a pre-existing spec drift in §4.3 (celebration was documented as keyed on `difficulty`; the code has always keyed it on `celebration_animation`).
 - 2026-09-02: Playtesting fixes: the combined word now sits directly on the answer slots (§3, §3.3) rather than in a separate row above them; the replay-sound button now positions itself from the measured answer-area rect instead of a fixed offset that had come to overlap the slots; overlap resolution on drop only corrects a genuine overlap, not an ordinary open-space drop near another tile (§3.3); an incorrect drop now plays a bounce sound alongside the existing error sound (§3.3, §7, §9).
+- 2026-09-03: Implemented screen-reader gameplay announcements and reduced-motion behavior for all animations and transitions. Kept portrait playable rather than forcing a rotation overlay, because embedded browser panels can be portrait-shaped without offering device rotation.
+- 2026-09-03: Drop highlighting and validation now follow the tile's visual center rather than its top-left corner, preventing visibly placed letters from missing a circle.
+- 2026-09-03: A wrong-answer bounce now guarantees the tile clears its circle even when the preferred bounce direction is blocked by a viewport edge.
+- 2026-09-03: Moved the replay-sound button from below the answer row into the header beside Help to reduce play-area clutter.

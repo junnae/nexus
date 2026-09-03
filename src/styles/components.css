@@ -98,41 +98,6 @@ button:focus-visible,
   pointer-events: none;
 }
 
-/* Replay-sound button. Absolutely positioned (top set inline from the
-   measured answer-area rect, so it always sits just below the slots and
-   never overlaps them) so appearing/disappearing never shifts
-   AnswerArea/LetterTiles, which measure their own layout independently and
-   wouldn't know to re-measure just because this button's presence changed. */
-.replay-sound-button {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 56px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 50%;
-  border: 2px solid var(--color-info);
-  background: var(--color-bg-primary);
-  color: var(--color-info);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: transform 100ms ease, background-color 100ms ease;
-  z-index: 2;
-}
-
-.replay-sound-button:hover {
-  background: var(--color-slot-hover);
-  color: white;
-}
-
-.replay-sound-button:active {
-  transform: translateX(-50%) scale(0.95);
-}
-
 /* AnswerArea */
 .answer-area {
   display: flex;

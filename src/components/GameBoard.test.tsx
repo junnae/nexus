@@ -97,4 +97,5 @@ describe('GameBoard', () => {
     await screen.findByRole('main')
     expect(fetch).toHaveBeenCalledWith('lang/english/data/words.json')
   })
+
 })

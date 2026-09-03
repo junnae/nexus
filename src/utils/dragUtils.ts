@@ -90,6 +90,14 @@ export function alignPositionsToSlots(slots: Slot[], tileSize: number): Vec2[] {
   }))
 }
 
+/** The center point of a tile-sized box whose top-left corner is at `position`. */
+export function centerOfTile(position: Vec2, tileSize: number): Vec2 {
+  return {
+    x: position.x + tileSize / 2,
+    y: position.y + tileSize / 2,
+  }
+}
+
 /**
  * Pushes `position` away from any overlapping `others` until clear (a
  * simple iterative separation, not full physics), then clamps to `bounds`.
@@ -108,8 +116,10 @@ export function resolveOverlaps(
   for (let iteration = 0; iteration < 16; iteration++) {
     let moved = false
     for (const other of others) {
-      let dx = x + tileSize / 2 - (other.x + tileSize / 2)
-      let dy = y + tileSize / 2 - (other.y + tileSize / 2)
+      const center = centerOfTile({ x, y }, tileSize)
+      const otherCenter = centerOfTile(other, tileSize)
+      let dx = center.x - otherCenter.x
+      let dy = center.y - otherCenter.y
       if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) dx = 1 // exact overlap: pick an arbitrary escape axis
 
       const overlapX = minSeparation - Math.abs(dx)
@@ -146,8 +156,8 @@ export function resolveOverlaps(
 
 /**
  * Pushes a dropped position away from a slot's center by `distance`, along
- * the slot-to-drop vector, clamped to `bounds`. Used for the "bounce away"
- * feedback on an incorrect drop.
+ * the slot-to-drop vector. If viewport clamping leaves the tile overlapping
+ * the slot, it selects the nearest clear side instead.
  */
 export function bounceAwayFromSlot(
   dropPosition: Vec2,
@@ -158,11 +168,10 @@ export function bounceAwayFromSlot(
 ): Vec2 {
   const slotCenterX = slotRect.x + slotRect.width / 2
   const slotCenterY = slotRect.y + slotRect.height / 2
-  const tileCenterX = dropPosition.x + tileSize / 2
-  const tileCenterY = dropPosition.y + tileSize / 2
+  const tileCenter = centerOfTile(dropPosition, tileSize)
 
-  let dx = tileCenterX - slotCenterX
-  let dy = tileCenterY - slotCenterY
+  let dx = tileCenter.x - slotCenterX
+  let dy = tileCenter.y - slotCenterY
   let dist = Math.hypot(dx, dy)
   if (dist < 0.01) {
     dx = 0
@@ -174,7 +183,31 @@ export function bounceAwayFromSlot(
     x: dropPosition.x + (dx / dist) * distance,
     y: dropPosition.y + (dy / dist) * distance,
   }
-  return clampToBounds(pushed, tileSize, bounds)
+  const clamped = clampToBounds(pushed, tileSize, bounds)
+  const tileRect = { ...clamped, width: tileSize, height: tileSize }
+  const gap = 8
+  if (!isCollision(tileRect, slotRect, gap)) return clamped
+
+  const clearSideCandidates = [
+    { x: slotRect.x - tileSize - gap, y: clamped.y },
+    { x: slotRect.x + slotRect.width + gap, y: clamped.y },
+    { x: clamped.x, y: slotRect.y - tileSize - gap },
+    { x: clamped.x, y: slotRect.y + slotRect.height + gap },
+  ]
+    .map((candidate) => clampToBounds(candidate, tileSize, bounds))
+    .filter(
+      (candidate) =>
+        !isCollision({ ...candidate, width: tileSize, height: tileSize }, slotRect, gap),
+    )
+
+  return (
+    clearSideCandidates.sort(
+      (a, b) =>
+        (a.x - clamped.x) ** 2 +
+        (a.y - clamped.y) ** 2 -
+        ((b.x - clamped.x) ** 2 + (b.y - clamped.y) ** 2),
+    )[0] ?? clamped
+  )
 }
 
 /**

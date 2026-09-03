@@ -22,4 +22,25 @@ describe('GameControls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
     expect(onSettings).toHaveBeenCalledTimes(1)
   })
+
+  it('shows the replay control only when a replay callback is available', () => {
+    const onReplay = vi.fn()
+    const { rerender } = render(
+      <GameControls
+        score={0}
+        totalWords={10}
+        currentIndex={0}
+        onReplay={onReplay}
+        replayLabel="Play the word cat again"
+        onHelp={() => {}}
+        onSettings={() => {}}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play the word cat again' }))
+    expect(onReplay).toHaveBeenCalledTimes(1)
+
+    rerender(<GameControls score={0} totalWords={10} currentIndex={0} onHelp={() => {}} onSettings={() => {}} />)
+    expect(screen.queryByRole('button', { name: /play the word/i })).not.toBeInTheDocument()
+  })
 })
