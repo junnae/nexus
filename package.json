@@ -1,0 +1,39 @@
+{
+  "name": "drag-into-place",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate:assets": "tsx scripts/generate-placeholder-assets.ts",
+    "build:bundle": "tsx scripts/build-bundle.ts"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^9.0.8",
+    "@vitejs/plugin-react": "^4.3.2",
+    "archiver": "^7.0.1",
+    "@types/archiver": "^6.0.2",
+    "jsdom": "^25.0.1",
+    "terser": "^5.34.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
+    "vitest": "^2.1.3",
+    "@vitest/coverage-v8": "^2.1.3"
+  }
+}

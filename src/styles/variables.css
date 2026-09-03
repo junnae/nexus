@@ -1,0 +1,70 @@
+:root {
+  /* Backgrounds */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+
+  /* Text */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+
+  /* Status */
+  --color-success: #2ecc71;
+  --color-error: #e74c3c;
+  --color-warning: #f39c12;
+  --color-info: #3498db;
+
+  /* UI Elements */
+  --color-tile-bg: #ecf0f1;
+  --color-tile-text: #2c3e50;
+  --color-tile-locked: #2ecc71;
+  --color-slot-empty: #bdc3c7;
+  --color-slot-filled: #2ecc71;
+  --color-slot-hover: #3498db;
+
+  /* Garden theme: seeds (letter tiles) & soil (answer slots) */
+  --color-seed-bg: #f4e1b8;
+  --color-seed-border: #b8894f;
+  --color-seed-text: #6b4423;
+  --color-seed-locked-bg: #8fbf6e;
+  --color-seed-locked-border: #4c9a4c;
+  --color-soil-empty: #d8c19a;
+  --color-soil-border: #a9743f;
+  --color-soil-filled: #cdeab8;
+
+  /* Shadows & Depth */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+  /* Typography */
+  --font-size-h1: 2.5rem;
+  --font-size-h2: 1.8rem;
+  --font-size-h3: 1.4rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.875rem;
+  --font-size-tile: 2.5rem;
+  --font-weight-tile: 700;
+  --font-family: 'Segoe UI', 'Roboto', sans-serif;
+  --font-family-mono: 'Courier New', monospace;
+
+  /* Layout (base: 1024x768 iPad) */
+  --tile-size: 60px;
+  --slot-size: 70px;
+  --image-size: 300px;
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --tile-size: 70px;
+    --slot-size: 80px;
+    --image-size: 350px;
+  }
+}
+
+@media (min-width: 2000px) {
+  :root {
+    --tile-size: 90px;
+    --slot-size: 100px;
+    --image-size: 400px;
+  }
+}

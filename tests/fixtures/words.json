@@ -1,0 +1,152 @@
+[
+  {
+    "level_id": 1,
+    "target_word": "cat",
+    "letters": ["c", "a", "t"],
+    "foils": [],
+    "image_path": "assets/images/cat.png",
+    "audio_word_path": "lang/english/audios/words/cat.wav",
+    "audio_letters": {
+      "c": "lang/english/audios/letters/c.wav",
+      "a": "lang/english/audios/letters/a.wav",
+      "t": "lang/english/audios/letters/t.wav"
+    },
+    "difficulty": "easy",
+    "celebration_animation": "pop"
+  },
+  {
+    "level_id": 2,
+    "target_word": "dog",
+    "letters": ["d", "o", "g"],
+    "foils": [],
+    "image_path": "assets/images/dog.png",
+    "audio_word_path": "lang/english/audios/words/dog.wav",
+    "audio_letters": {
+      "d": "lang/english/audios/letters/d.wav",
+      "o": "lang/english/audios/letters/o.wav",
+      "g": "lang/english/audios/letters/g.wav"
+    },
+    "difficulty": "medium",
+    "celebration_animation": "bounce"
+  },
+  {
+    "level_id": 3,
+    "target_word": "sun",
+    "letters": ["s", "u", "n"],
+    "foils": [],
+    "image_path": "assets/images/sun.png",
+    "audio_word_path": "lang/english/audios/words/sun.wav",
+    "audio_letters": {
+      "s": "lang/english/audios/letters/s.wav",
+      "u": "lang/english/audios/letters/u.wav",
+      "n": "lang/english/audios/letters/n.wav"
+    },
+    "difficulty": "hard",
+    "celebration_animation": "confetti"
+  },
+  {
+    "level_id": 4,
+    "target_word": "hat",
+    "letters": ["h", "a", "t"],
+    "foils": [],
+    "image_path": "assets/images/hat.png",
+    "audio_word_path": "lang/english/audios/words/hat.wav",
+    "audio_letters": {
+      "h": "lang/english/audios/letters/h.wav",
+      "a": "lang/english/audios/letters/a.wav",
+      "t": "lang/english/audios/letters/t.wav"
+    },
+    "difficulty": "easy",
+    "celebration_animation": "pop"
+  },
+  {
+    "level_id": 5,
+    "target_word": "pig",
+    "letters": ["p", "i", "g"],
+    "foils": [],
+    "image_path": "assets/images/pig.png",
+    "audio_word_path": "lang/english/audios/words/pig.wav",
+    "audio_letters": {
+      "p": "lang/english/audios/letters/p.wav",
+      "i": "lang/english/audios/letters/i.wav",
+      "g": "lang/english/audios/letters/g.wav"
+    },
+    "difficulty": "medium",
+    "celebration_animation": "bounce"
+  },
+  {
+    "level_id": 6,
+    "target_word": "bed",
+    "letters": ["b", "e", "d"],
+    "foils": [],
+    "image_path": "assets/images/bed.png",
+    "audio_word_path": "lang/english/audios/words/bed.wav",
+    "audio_letters": {
+      "b": "lang/english/audios/letters/b.wav",
+      "e": "lang/english/audios/letters/e.wav",
+      "d": "lang/english/audios/letters/d.wav"
+    },
+    "difficulty": "hard",
+    "celebration_animation": "confetti"
+  },
+  {
+    "level_id": 7,
+    "target_word": "cup",
+    "letters": ["c", "u", "p"],
+    "foils": [],
+    "image_path": "assets/images/cup.png",
+    "audio_word_path": "lang/english/audios/words/cup.wav",
+    "audio_letters": {
+      "c": "lang/english/audios/letters/c.wav",
+      "u": "lang/english/audios/letters/u.wav",
+      "p": "lang/english/audios/letters/p.wav"
+    },
+    "difficulty": "easy",
+    "celebration_animation": "pop"
+  },
+  {
+    "level_id": 8,
+    "target_word": "fox",
+    "letters": ["f", "o", "x"],
+    "foils": [],
+    "image_path": "assets/images/fox.png",
+    "audio_word_path": "lang/english/audios/words/fox.wav",
+    "audio_letters": {
+      "f": "lang/english/audios/letters/f.wav",
+      "o": "lang/english/audios/letters/o.wav",
+      "x": "lang/english/audios/letters/x.wav"
+    },
+    "difficulty": "medium",
+    "celebration_animation": "bounce"
+  },
+  {
+    "level_id": 9,
+    "target_word": "bug",
+    "letters": ["b", "u", "g"],
+    "foils": [],
+    "image_path": "assets/images/bug.png",
+    "audio_word_path": "lang/english/audios/words/bug.wav",
+    "audio_letters": {
+      "b": "lang/english/audios/letters/b.wav",
+      "u": "lang/english/audios/letters/u.wav",
+      "g": "lang/english/audios/letters/g.wav"
+    },
+    "difficulty": "hard",
+    "celebration_animation": "confetti"
+  },
+  {
+    "level_id": 10,
+    "target_word": "mat",
+    "letters": ["m", "a", "t"],
+    "foils": [],
+    "image_path": "assets/images/mat.png",
+    "audio_word_path": "lang/english/audios/words/mat.wav",
+    "audio_letters": {
+      "m": "lang/english/audios/letters/m.wav",
+      "a": "lang/english/audios/letters/a.wav",
+      "t": "lang/english/audios/letters/t.wav"
+    },
+    "difficulty": "easy",
+    "celebration_animation": "pop"
+  }
+]

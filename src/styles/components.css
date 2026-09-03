@@ -1,0 +1,356 @@
+/* Header / GameControls */
+.game-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.game-header__scores {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.game-header__score {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.game-header__progress {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+}
+
+.game-header__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  color: var(--color-info);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 100ms ease, background-color 100ms ease;
+}
+
+.icon-button:hover {
+  background: var(--color-slot-hover);
+  color: white;
+}
+
+.icon-button:active {
+  transform: scale(0.95);
+}
+
+.icon-button:focus-visible,
+button:focus-visible,
+.letter-tile:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+/* Play area */
+.play-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.garden-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.garden-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+/* Replay-sound button. Absolutely positioned (top set inline from the
+   measured answer-area rect, so it always sits just below the slots and
+   never overlaps them) so appearing/disappearing never shifts
+   AnswerArea/LetterTiles, which measure their own layout independently and
+   wouldn't know to re-measure just because this button's presence changed. */
+.replay-sound-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--color-info);
+  background: var(--color-bg-primary);
+  color: var(--color-info);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 100ms ease, background-color 100ms ease;
+  z-index: 2;
+}
+
+.replay-sound-button:hover {
+  background: var(--color-slot-hover);
+  color: white;
+}
+
+.replay-sound-button:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* AnswerArea */
+.answer-area {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.answer-slot {
+  width: var(--slot-size);
+  height: var(--slot-size);
+  min-width: 44px;
+  min-height: 44px;
+  border: 3px dashed var(--color-soil-border);
+  border-radius: 50%;
+  background: var(--color-soil-empty);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-tile);
+  font-weight: var(--font-weight-tile);
+  color: var(--color-tile-text);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.answer-slot--hover {
+  border: 3px solid var(--color-slot-hover);
+  background: color-mix(in srgb, var(--color-slot-hover) 15%, var(--color-soil-empty));
+}
+
+.answer-slot--filled {
+  border: 3px solid var(--color-seed-locked-border);
+  background: var(--color-soil-filled);
+}
+
+.answer-slot--error {
+  border: 2px solid var(--color-error);
+  animation: shake 300ms ease;
+}
+
+/* LetterTiles */
+.letter-tiles-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.letter-tile {
+  position: absolute;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-tile);
+  font-weight: var(--font-weight-tile);
+  color: var(--color-seed-text);
+  background: var(--color-seed-bg);
+  border: 2px solid var(--color-seed-border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  pointer-events: auto;
+  transition: box-shadow 100ms ease, transform 100ms ease, left 300ms ease-out, top 300ms ease-out;
+}
+
+.letter-tile:hover:not(.letter-tile--locked) {
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.letter-tile--dragging {
+  box-shadow: var(--shadow-lg);
+  opacity: 0.8;
+  z-index: 1000;
+  cursor: grabbing;
+  transition: none; /* track the pointer instantly; only the post-drop snap animates */
+}
+
+.letter-tile--locked {
+  background: var(--color-seed-locked-bg);
+  border-color: var(--color-seed-locked-border);
+  cursor: default;
+}
+
+.letter-tile--assembled {
+  cursor: pointer;
+  animation: tile-pulse 1.6s ease-in-out infinite;
+}
+
+.letter-tile--bounce {
+  animation: shake 300ms ease;
+}
+
+/* Loading / Error screens */
+.status-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.status-screen__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--color-bg-secondary);
+  border-top-color: var(--color-info);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.status-screen__icon {
+  font-size: 3rem;
+}
+
+.status-screen__buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.button-primary {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-info);
+  color: white;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition: transform 100ms ease, filter 100ms ease;
+}
+
+.button-primary:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+/* Help modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  width: 80%;
+  max-width: 480px;
+  background: var(--color-bg-primary);
+  border-radius: 8px;
+  padding: 24px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* Celebration overlay */
+.celebration-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  font-size: var(--font-size-h1);
+  font-weight: 700;
+  z-index: 1500;
+  animation: fade-in 300ms ease-in-out;
+}
+
+.celebration-overlay__flower-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 8px;
+}
+
+.celebration-overlay--pop .celebration-overlay__flower-wrap svg {
+  animation: pop 400ms ease;
+}
+
+.celebration-overlay--bounce .celebration-overlay__flower-wrap svg {
+  animation: bloom-bounce 600ms ease;
+}
+
+.celebration-overlay--confetti .celebration-overlay__flower-wrap svg {
+  animation: pop 400ms ease;
+}
+
+.celebration-petal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 14px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--petal-color, #f2a6c8);
+  animation: petal-burst 700ms ease-out forwards;
+}

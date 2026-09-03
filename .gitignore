@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-bundles/
+.next/
+*.local
+coverage/
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
